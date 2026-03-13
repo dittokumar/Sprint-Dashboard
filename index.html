@@ -1,0 +1,356 @@
+
+
+<style>
+*{box-sizing:border-box}
+.tabs{display:flex;gap:2px;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:1.5rem}
+.tab{padding:8px 14px;font-size:13px;background:transparent;border:none;border-bottom:2px solid transparent;margin-bottom:-1px;cursor:pointer;color:var(--color-text-secondary);font-family:var(--font-sans)}
+.tab.act{color:var(--color-text-primary);border-bottom-color:#378ADD;font-weight:500}
+.sec{display:none}.sec.act{display:block}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;margin-bottom:1rem}
+.met{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:1rem}
+.ml{font-size:12px;color:var(--color-text-secondary);margin:0 0 4px}
+.mv{font-size:22px;font-weight:500;margin:0;color:var(--color-text-primary)}
+.ms{font-size:12px;color:var(--color-text-tertiary);margin:2px 0 0}
+.g4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:1rem}
+.g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:1rem}
+.g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:1rem}
+.badge-r{background:#FCEBEB;color:#A32D2D;border-radius:4px;padding:2px 8px;font-size:11px;font-weight:500;display:inline-block}
+.badge-a{background:#FAEEDA;color:#854F0B;border-radius:4px;padding:2px 8px;font-size:11px;font-weight:500;display:inline-block}
+.badge-g{background:#EAF3DE;color:#3B6D11;border-radius:4px;padding:2px 8px;font-size:11px;font-weight:500;display:inline-block}
+.badge-b{background:#E6F1FB;color:#185FA5;border-radius:4px;padding:2px 8px;font-size:11px;font-weight:500;display:inline-block}
+.inp{width:100%;padding:8px 10px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);font-size:13px;background:var(--color-background-primary);color:var(--color-text-primary);font-family:var(--font-sans);margin-top:4px}
+.inp:focus{outline:none;border-color:#378ADD}
+.fl{display:flex;flex-direction:column;gap:4px}
+.fll{font-size:12px;color:var(--color-text-secondary)}
+.conn-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1rem}
+.stat-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.stat-row:last-child{border-bottom:none}
+.loading{display:flex;align-items:center;gap:10px;padding:1.5rem;color:var(--color-text-secondary);font-size:13px}
+.spin{width:18px;height:18px;border:2px solid var(--color-border-secondary);border-top-color:#378ADD;border-radius:50%;animation:spin 0.8s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.err{background:#FCEBEB;border:0.5px solid #F7C1C1;border-radius:var(--border-radius-md);padding:1rem;color:#A32D2D;font-size:13px;margin-bottom:1rem}
+.suc{background:#EAF3DE;border:0.5px solid #C0DD97;border-radius:var(--border-radius-md);padding:1rem;color:#3B6D11;font-size:13px;margin-bottom:1rem}
+.info-box{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:1rem;margin-bottom:1rem}
+.step{display:flex;gap:12px;align-items:flex-start;margin-bottom:12px}
+.step-n{width:24px;height:24px;border-radius:50%;background:#378ADD;color:white;font-size:11px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0}
+.issue-row{padding:10px 0;border-bottom:0.5px solid var(--color-border-tertiary);display:flex;align-items:center;gap:12px}
+.issue-row:last-child{border-bottom:none}
+.prog-bar{height:6px;background:var(--color-background-secondary);border-radius:4px;margin-top:6px}
+.prog-fill{height:100%;border-radius:4px;background:#378ADD;transition:width 0.6s ease}
+</style>
+
+<div style="padding-top:0.5rem">
+
+<!-- Header -->
+<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.25rem">
+  <div>
+    <p style="font-size:12px;color:var(--color-text-secondary);margin:0">Scrum Master</p>
+    <p style="font-size:20px;font-weight:500;margin:4px 0 0;color:var(--color-text-primary)">Live Sprint Dashboard</p>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center">
+    <span id="conn-status" style="font-size:12px;color:var(--color-text-tertiary)">Not connected</span>
+    <button onclick="goSetup()" style="font-size:12px;padding:6px 14px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-primary);cursor:pointer">Settings</button>
+  </div>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+  <button class="tab act" onclick="switchTab(this,'setup')">Connection setup</button>
+  <button class="tab" onclick="switchTab(this,'sprint')">Sprint progress</button>
+  <button class="tab" onclick="switchTab(this,'standup')">Daily standup</button>
+  <button class="tab" onclick="switchTab(this,'blockers')">Blockers</button>
+  <button class="tab" onclick="switchTab(this,'workload')">Workload</button>
+</div>
+
+<!-- SETUP TAB -->
+<div id="sec-setup" class="sec act">
+  <div class="card">
+    <p style="font-size:14px;font-weight:500;margin:0 0 0.75rem;color:var(--color-text-primary)">Step 1 — Enter your Jira credentials</p>
+    <p style="font-size:13px;color:var(--color-text-secondary);margin:0 0 1rem">Your credentials are used only in this browser session and never stored or sent anywhere except directly to your Jira instance.</p>
+    <div class="conn-grid">
+      <div class="fl"><span class="fll">Jira domain</span><input class="inp" id="jira-domain" placeholder="yourcompany.atlassian.net" /></div>
+      <div class="fl"><span class="fll">Your email</span><input class="inp" id="jira-email" placeholder="you@yourcompany.com" /></div>
+      <div class="fl"><span class="fll">API token</span><input class="inp" id="jira-token" type="password" placeholder="Paste your API token here" /></div>
+      <div class="fl"><span class="fll">Project key</span><input class="inp" id="jira-project" placeholder="e.g. PROJ or ELIMS" /></div>
+    </div>
+    <button onclick="testConnection()" style="padding:8px 20px;background:#378ADD;color:white;border:none;border-radius:var(--border-radius-md);font-size:13px;cursor:pointer;font-family:var(--font-sans)">Test connection</button>
+  </div>
+
+  <div id="conn-result"></div>
+
+  <div class="card">
+    <p style="font-size:14px;font-weight:500;margin:0 0 0.75rem;color:var(--color-text-primary)">Step 2 — Load your active sprint</p>
+    <p style="font-size:13px;color:var(--color-text-secondary);margin:0 0 1rem">Once connected, click below to fetch your current sprint data and populate the dashboard.</p>
+    <button onclick="loadSprint()" id="load-btn" style="padding:8px 20px;background:var(--color-background-secondary);color:var(--color-text-secondary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);font-size:13px;cursor:pointer;font-family:var(--font-sans)" disabled>Load active sprint data</button>
+  </div>
+
+  <div class="card">
+    <p style="font-size:14px;font-weight:500;margin:0 0 0.75rem;color:var(--color-text-primary)">How to get your API token</p>
+    <div class="step"><div class="step-n">1</div><div><p style="margin:0;font-size:13px;color:var(--color-text-primary)">Go to <span style="font-family:var(--font-mono);font-size:12px;background:var(--color-background-secondary);padding:2px 6px;border-radius:4px">id.atlassian.com/manage-profile/security/api-tokens</span></p></div></div>
+    <div class="step"><div class="step-n">2</div><div><p style="margin:0;font-size:13px;color:var(--color-text-primary)">Click "Create API token" → label it "SM Dashboard Token" → set expiry to 365 days</p></div></div>
+    <div class="step"><div class="step-n">3</div><div><p style="margin:0;font-size:13px;color:var(--color-text-primary)">Click "Copy to clipboard" → paste it in the API token field above</p></div></div>
+    <div class="step" style="margin-bottom:0"><div class="step-n">4</div><div><p style="margin:0;font-size:13px;color:var(--color-text-primary)">Your project key is visible in any ticket ID — e.g. PROJ-123 → key is PROJ</p></div></div>
+  </div>
+</div>
+
+<!-- SPRINT TAB -->
+<div id="sec-sprint" class="sec">
+  <div id="sprint-content">
+    <div class="info-box">
+      <p style="font-size:13px;color:var(--color-text-secondary);margin:0">Connect your Jira account in the Connection setup tab to load live sprint data here.</p>
+    </div>
+  </div>
+</div>
+
+<!-- STANDUP TAB -->
+<div id="sec-standup" class="sec">
+  <div id="standup-content">
+    <div class="info-box">
+      <p style="font-size:13px;color:var(--color-text-secondary);margin:0">Connect your Jira account in the Connection setup tab to load team standup data here.</p>
+    </div>
+  </div>
+</div>
+
+<!-- BLOCKERS TAB -->
+<div id="sec-blockers" class="sec">
+  <div id="blockers-content">
+    <div class="info-box">
+      <p style="font-size:13px;color:var(--color-text-secondary);margin:0">Connect your Jira account in the Connection setup tab to load blocker data here.</p>
+    </div>
+  </div>
+</div>
+
+<!-- WORKLOAD TAB -->
+<div id="sec-workload" class="sec">
+  <div id="workload-content">
+    <div class="info-box">
+      <p style="font-size:13px;color:var(--color-text-secondary);margin:0">Connect your Jira account in the Connection setup tab to load workload data here.</p>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+function switchTab(btn, id) {
+  document.querySelectorAll('.sec').forEach(s => s.classList.remove('act'));
+  document.querySelectorAll('.tab').forEach(b => b.classList.remove('act'));
+  document.getElementById('sec-' + id).classList.add('act');
+  btn.classList.add('act');
+}
+function goSetup() {
+  document.querySelectorAll('.sec').forEach(s => s.classList.remove('act'));
+  document.querySelectorAll('.tab').forEach(b => b.classList.remove('act'));
+  document.getElementById('sec-setup').classList.add('act');
+  document.querySelectorAll('.tab')[0].classList.add('act');
+}
+
+let jiraConfig = {};
+
+async function testConnection() {
+  const domain = document.getElementById('jira-domain').value.trim().replace('https://','').replace(/\//g,'');
+  const email = document.getElementById('jira-email').value.trim();
+  const token = document.getElementById('jira-token').value.trim();
+  const project = document.getElementById('jira-project').value.trim().toUpperCase();
+  const res = document.getElementById('conn-result');
+
+  if (!domain || !email || !token || !project) {
+    res.innerHTML = '<div class="err">Please fill in all four fields before testing.</div>'; return;
+  }
+
+  res.innerHTML = '<div class="loading"><div class="spin"></div>Testing connection to ' + domain + '...</div>';
+
+  const creds = btoa(email + ':' + token);
+  const url = 'https://' + domain + '/rest/api/3/project/' + project;
+
+  try {
+    const r = await fetch(url, { headers: { 'Authorization': 'Basic ' + creds, 'Accept': 'application/json' } });
+    if (r.ok) {
+      const data = await r.json();
+      jiraConfig = { domain, email, token, project, creds };
+      document.getElementById('conn-status').textContent = 'Connected to ' + domain;
+      document.getElementById('conn-status').style.color = '#3B6D11';
+      document.getElementById('load-btn').disabled = false;
+      document.getElementById('load-btn').style.background = '#378ADD';
+      document.getElementById('load-btn').style.color = 'white';
+      document.getElementById('load-btn').style.borderColor = '#378ADD';
+      res.innerHTML = '<div class="suc">Connected successfully to project: ' + (data.name || project) + '. Click "Load active sprint data" in Step 2 to populate your dashboard.</div>';
+    } else if (r.status === 401) {
+      res.innerHTML = '<div class="err">Authentication failed (401). Check your email and API token are correct.</div>';
+    } else if (r.status === 404) {
+      res.innerHTML = '<div class="err">Project "' + project + '" not found (404). Check your project key is correct.</div>';
+    } else {
+      res.innerHTML = '<div class="err">Connection failed with status ' + r.status + '. Check your Jira domain and try again.</div>';
+    }
+  } catch(e) {
+    res.innerHTML = '<div class="err">Could not reach your Jira instance. This can happen due to browser CORS restrictions when connecting directly from a browser. See Stage 4 in the setup guide for hosting options that bypass this limitation.</div>';
+  }
+}
+
+async function loadSprint() {
+  if (!jiraConfig.domain) return;
+  const btn = document.getElementById('load-btn');
+  btn.textContent = 'Loading...';
+  btn.disabled = true;
+
+  try {
+    const boardUrl = 'https://' + jiraConfig.domain + '/rest/agile/1.0/board?projectKeyOrId=' + jiraConfig.project;
+    const boardRes = await fetch(boardUrl, { headers: { 'Authorization': 'Basic ' + jiraConfig.creds, 'Accept': 'application/json' } });
+    const boardData = await boardRes.json();
+    const boardId = boardData.values && boardData.values[0] ? boardData.values[0].id : null;
+
+    if (!boardId) { showLoadError('No board found for project ' + jiraConfig.project); btn.textContent = 'Load active sprint data'; btn.disabled = false; return; }
+
+    const sprintUrl = 'https://' + jiraConfig.domain + '/rest/agile/1.0/board/' + boardId + '/sprint?state=active';
+    const sprintRes = await fetch(sprintUrl, { headers: { 'Authorization': 'Basic ' + jiraConfig.creds, 'Accept': 'application/json' } });
+    const sprintData = await sprintRes.json();
+    const sprint = sprintData.values && sprintData.values[0] ? sprintData.values[0] : null;
+
+    if (!sprint) { showLoadError('No active sprint found on board ' + boardId); btn.textContent = 'Load active sprint data'; btn.disabled = false; return; }
+
+    const issuesUrl = 'https://' + jiraConfig.domain + '/rest/agile/1.0/board/' + boardId + '/sprint/' + sprint.id + '/issue?maxResults=100&fields=summary,status,assignee,priority,issuetype,story_points,customfield_10016,labels,updated,created';
+    const issuesRes = await fetch(issuesUrl, { headers: { 'Authorization': 'Basic ' + jiraConfig.creds, 'Accept': 'application/json' } });
+    const issuesData = await issuesRes.json();
+
+    populateDashboard(sprint, issuesData.issues || []);
+    btn.textContent = 'Refresh data';
+    btn.disabled = false;
+  } catch(e) {
+    showLoadError('Failed to load sprint data. Check the setup guide Stage 4 for hosting options if you see CORS errors.');
+    btn.textContent = 'Load active sprint data';
+    btn.disabled = false;
+  }
+}
+
+function showLoadError(msg) {
+  document.getElementById('conn-result').innerHTML = '<div class="err">' + msg + '</div>';
+}
+
+function getInitials(name) {
+  if (!name) return '??';
+  return name.split(' ').map(w => w[0]).join('').substring(0,2).toUpperCase();
+}
+
+function statusBadge(s) {
+  const n = (s||'').toLowerCase();
+  if (n.includes('done') || n.includes('complete')) return '<span class="badge-g">' + s + '</span>';
+  if (n.includes('progress') || n.includes('review')) return '<span class="badge-b">' + s + '</span>';
+  if (n.includes('block')) return '<span class="badge-r">' + s + '</span>';
+  return '<span class="badge-a">' + s + '</span>';
+}
+
+function priorityDot(p) {
+  const m = {'Highest':'#A32D2D','High':'#E24B4A','Medium':'#EF9F27','Low':'#378ADD','Lowest':'#B4B2A9'};
+  return '<span style="width:8px;height:8px;border-radius:50%;background:' + (m[p]||'#B4B2A9') + ';display:inline-block;margin-right:4px"></span>';
+}
+
+function populateDashboard(sprint, issues) {
+  const total = issues.length;
+  const done = issues.filter(i => (i.fields.status.name||'').toLowerCase().includes('done') || (i.fields.status.name||'').toLowerCase().includes('complete')).length;
+  const inProg = issues.filter(i => (i.fields.status.name||'').toLowerCase().includes('progress')).length;
+  const blocked = issues.filter(i => (i.fields.labels||[]).includes('blocked')).length;
+  const bugs = issues.filter(i => (i.fields.issuetype.name||'').toLowerCase() === 'bug').length;
+  const pct = total ? Math.round(done / total * 100) : 0;
+
+  const startD = sprint.startDate ? new Date(sprint.startDate).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : 'N/A';
+  const endD = sprint.endDate ? new Date(sprint.endDate).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : 'N/A';
+
+  const overallBadge = pct >= 70 ? '<span class="badge-g">Overall: Green</span>' : pct >= 40 ? '<span class="badge-a">Overall: Amber</span>' : '<span class="badge-r">Overall: Red</span>';
+
+  document.getElementById('sprint-content').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+      <div><p style="font-size:12px;color:var(--color-text-secondary);margin:0">${sprint.name}</p><p style="font-size:14px;font-weight:500;margin:3px 0 0;color:var(--color-text-primary)">${startD} → ${endD}</p></div>
+      ${overallBadge}
+    </div>
+    <div class="g4">
+      <div class="met"><p class="ml">Total issues</p><p class="mv">${total}</p><p class="ms">In active sprint</p></div>
+      <div class="met"><p class="ml">Completed</p><p class="mv" style="color:#3B6D11">${done}</p><p class="ms">${pct}% done</p></div>
+      <div class="met"><p class="ml">In progress</p><p class="mv" style="color:#185FA5">${inProg}</p><p class="ms">Active now</p></div>
+      <div class="met"><p class="ml">Bugs</p><p class="mv" style="color:${bugs>2?'#A32D2D':'#888780'}">${bugs}</p><p class="ms">Open bug tickets</p></div>
+    </div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:13px;color:var(--color-text-secondary)">Completion — ${done} of ${total} issues done</span><span style="font-size:13px;font-weight:500;color:var(--color-text-primary)">${pct}%</span></div>
+      <div class="prog-bar"><div class="prog-fill" style="width:${pct}%"></div></div>
+    </div>
+    <div class="card">
+      <p style="font-size:13px;font-weight:500;margin:0 0 0.75rem;color:var(--color-text-primary)">All sprint issues</p>
+      ${issues.slice(0,15).map(i => `
+        <div class="issue-row">
+          ${priorityDot(i.fields.priority ? i.fields.priority.name : 'Medium')}
+          <span style="font-size:11px;color:var(--color-text-tertiary);font-family:var(--font-mono);min-width:72px">${i.key}</span>
+          <span style="font-size:13px;color:var(--color-text-primary);flex:1">${i.fields.summary.substring(0,55)}${i.fields.summary.length>55?'…':''}</span>
+          ${statusBadge(i.fields.status.name)}
+        </div>`).join('')}
+      ${issues.length > 15 ? `<p style="font-size:12px;color:var(--color-text-tertiary);margin:10px 0 0;text-align:center">+ ${issues.length - 15} more issues</p>` : ''}
+    </div>`;
+
+  const assignees = {};
+  issues.forEach(i => {
+    const a = i.fields.assignee ? i.fields.assignee.displayName : 'Unassigned';
+    if (!assignees[a]) assignees[a] = { total:0, done:0, inProg:0, items:[] };
+    assignees[a].total++;
+    const s = (i.fields.status.name||'').toLowerCase();
+    if (s.includes('done') || s.includes('complete')) assignees[a].done++;
+    if (s.includes('progress')) assignees[a].inProg++;
+    assignees[a].items.push(i);
+  });
+
+  const avColors = ['#E6F1FB,#185FA5','#FAEEDA,#854F0B','#EAF3DE,#3B6D11','#EEEDFE,#534AB7','#FBEAF0,#993556'];
+  let acIdx = 0;
+  const standupHtml = Object.entries(assignees).map(([name, d]) => {
+    const c = avColors[acIdx++ % avColors.length].split(',');
+    const wipStatus = d.inProg > 3 ? '<span class="badge-r">High WIP</span>' : d.inProg > 2 ? '<span class="badge-a">Watch</span>' : '<span class="badge-g">On track</span>';
+    return `<div class="card">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+        <div class="av" style="background:${c[0]};color:${c[1]}">${getInitials(name)}</div>
+        <div style="flex:1"><p style="font-size:14px;font-weight:500;margin:0;color:var(--color-text-primary)">${name}</p><p style="font-size:12px;color:var(--color-text-secondary);margin:0">${d.total} issues assigned</p></div>
+        ${wipStatus}
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+        <div><p style="font-size:11px;color:var(--color-text-tertiary);margin:0 0 3px">Done</p><p style="font-size:20px;font-weight:500;color:#3B6D11;margin:0">${d.done}</p></div>
+        <div><p style="font-size:11px;color:var(--color-text-tertiary);margin:0 0 3px">In progress</p><p style="font-size:20px;font-weight:500;color:#185FA5;margin:0">${d.inProg}</p></div>
+        <div><p style="font-size:11px;color:var(--color-text-tertiary);margin:0 0 3px">Remaining</p><p style="font-size:20px;font-weight:500;color:var(--color-text-primary);margin:0">${d.total - d.done - d.inProg}</p></div>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('standup-content').innerHTML = `<p style="font-size:13px;color:var(--color-text-secondary);margin:0 0 1rem">${Object.keys(assignees).length} team members · Live from Jira</p>` + standupHtml;
+
+  const blockerIssues = issues.filter(i => (i.fields.labels||[]).includes('blocked'));
+  const highPri = issues.filter(i => i.fields.priority && ['Highest','High'].includes(i.fields.priority.name) && !(i.fields.status.name||'').toLowerCase().includes('done'));
+  document.getElementById('blockers-content').innerHTML = `
+    <div class="g3" style="margin-bottom:1rem">
+      <div class="met"><p class="ml">Labelled blocked</p><p class="mv" style="color:${blockerIssues.length>0?'#A32D2D':'#3B6D11'}">${blockerIssues.length}</p><p class="ms">Issues with blocked label</p></div>
+      <div class="met"><p class="ml">High priority open</p><p class="mv" style="color:${highPri.length>3?'#A32D2D':'#854F0B'}">${highPri.length}</p><p class="ms">Not yet done</p></div>
+      <div class="met"><p class="ml">Open bugs</p><p class="mv" style="color:${bugs>2?'#A32D2D':'#3B6D11'}">${bugs}</p><p class="ms">Bug type issues</p></div>
+    </div>
+    <div class="card">
+      <p style="font-size:13px;font-weight:500;margin:0 0 0.75rem;color:var(--color-text-primary)">High priority open issues</p>
+      ${highPri.length === 0 ? '<p style="font-size:13px;color:#3B6D11;margin:0">No high priority open issues. Sprint is healthy.</p>' :
+        highPri.slice(0,8).map(i => `<div class="issue-row">${priorityDot(i.fields.priority.name)}<span style="font-size:11px;color:var(--color-text-tertiary);font-family:var(--font-mono);min-width:72px">${i.key}</span><span style="font-size:13px;color:var(--color-text-primary);flex:1">${i.fields.summary.substring(0,60)}${i.fields.summary.length>60?'…':''}</span>${statusBadge(i.fields.status.name)}</div>`).join('')
+      }
+    </div>`;
+
+  const workloadRows = Object.entries(assignees).sort((a,b) => b[1].inProg - a[1].inProg).map(([name, d]) => {
+    const pct2 = d.total ? Math.round(d.inProg / Math.max(...Object.values(assignees).map(x=>x.inProg), 1) * 100) : 0;
+    const barColor = d.inProg > 3 ? '#E24B4A' : d.inProg > 2 ? '#EF9F27' : '#378ADD';
+    const badge = d.inProg > 3 ? '<span class="badge-r">High</span>' : d.inProg > 2 ? '<span class="badge-a">Watch</span>' : '<span class="badge-g">OK</span>';
+    return `<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+      <span style="font-size:13px;color:var(--color-text-primary);min-width:110px">${name.split(' ')[0]} ${name.split(' ')[1]||''}</span>
+      <div style="flex:1;background:var(--color-background-secondary);border-radius:4px;height:7px"><div style="width:${pct2}%;height:100%;border-radius:4px;background:${barColor}"></div></div>
+      <span style="font-size:12px;color:var(--color-text-secondary);min-width:52px;text-align:right">${d.inProg} active</span>
+      ${badge}
+    </div>`;
+  }).join('');
+
+  document.getElementById('workload-content').innerHTML = `
+    <div class="g3" style="margin-bottom:1rem">
+      <div class="met"><p class="ml">Team members</p><p class="mv">${Object.keys(assignees).length}</p><p class="ms">With assignments</p></div>
+      <div class="met"><p class="ml">Total in progress</p><p class="mv" style="color:#185FA5">${Object.values(assignees).reduce((s,a)=>s+a.inProg,0)}</p><p class="ms">Across team</p></div>
+      <div class="met"><p class="ml">Avg per person</p><p class="mv">${Object.keys(assignees).length ? (Object.values(assignees).reduce((s,a)=>s+a.inProg,0)/Object.keys(assignees).length).toFixed(1) : 0}</p><p class="ms">WIP items</p></div>
+    </div>
+    <div class="card"><p style="font-size:13px;font-weight:500;margin:0 0 1rem;color:var(--color-text-primary)">Active work per person</p>${workloadRows}</div>`;
+
+  document.getElementById('conn-result').innerHTML = '<div class="suc">Dashboard populated with live data from sprint: ' + sprint.name + '</div>';
+}
+</script>
